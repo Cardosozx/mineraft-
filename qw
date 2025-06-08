@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Mini Minecraft</title>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      canvas { display: block; }
+    </style>
+  </head>
+  <body>
+    <script type="module">
+      import * as THREE from 'https://cdn.skypack.dev/three@0.150.1';
+      import { PointerLockControls } from 'https://cdn.skypack.dev/three/examples/jsm/controls/PointerLockControls.js';
+
+      // Cena, câmera e renderizador
+      let scene = new THREE.Scene();
+      let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      let renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      // Controles de movimento com mouse
+      let controls = new PointerLockControls(camera, document.body);
+      document.body.addEventListener('click', () => controls.lock());
+      scene.add(controls.getObject());
+
+      // Luz
+      const light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(1, 1, 1);
+      scene.add(light);
+
+      // Criar blocos
+      const material = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+      const geometry = new THREE.BoxGeometry(1, 1, 1);
+      for (let x = -10; x <= 10; x++) {
+        for (let z = -10; z <= 10; z++) {
+          const cube = new THREE.Mesh(geometry, material);
+          cube.position.set(x, -1, z);
+          scene.add(cube);
+        }
+      }
+
+      // Movimento
+      let velocity = new THREE.Vector3();
+      const keys = {};
+      document.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+      document.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+      camera.position.y = 1;
+
+      function animate() {
+        requestAnimationFrame(animate);
+        velocity.x = velocity.z = 0;
+        if (keys['w']) velocity.z = -0.1;
+        if (keys['s']) velocity.z = 0.1;
+        if (keys['a']) velocity.x = -0.1;
+        if (keys['d']) velocity.x = 0.1;
+        controls.moveRight(velocity.x);
+        controls.moveForward(velocity.z);
+        renderer.render(scene, camera);
+      }
+
+      animate();
+    </script>
+  </body>
+</html>
